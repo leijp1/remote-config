@@ -11,6 +11,7 @@ export interface Config {
   login: Login;
   logger: Logger;
   steps: Step[];
+  output: boolean;
 }
 
 export interface Logger {

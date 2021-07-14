@@ -72,7 +72,8 @@ export class ConfigParser {
       await remote.connect();
 
       // run steps
-      this.config.steps.forEach(async (step, count) => {
+      let count = 0;
+      for (let step of this.config.steps) {
         const { files, directory, run, cwd, env, catch_err, name, with_root } =
           step;
 
@@ -104,7 +105,8 @@ export class ConfigParser {
         } else {
           throw new Error('Nothing to run');
         }
-      });
+        count++;
+      }
     }
   }
 

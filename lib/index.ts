@@ -17,6 +17,6 @@ if (argv.length !== 3) {
     .readFile()
     .runRemoteCommand()
     .then(() => {
-      console.log('ok');
+      process.exit(0);
     });
 }

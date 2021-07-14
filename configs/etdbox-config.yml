@@ -1,0 +1,15 @@
+name: ETD Box
+output: true
+
+remote: ["172.16.187.3"]
+
+login:
+  username: sirily11
+  password: "11017991"
+
+logger:
+  output: "/local/logger.txt"
+
+steps:
+  - run: git clone https://github.com/sirily11/eth-localnet.git
+    catch_err: true

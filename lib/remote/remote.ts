@@ -7,6 +7,7 @@ interface Param {
   username: string;
   password: string;
   concurrency: number;
+  showOutput: boolean;
 }
 
 interface Command {
@@ -14,6 +15,7 @@ interface Command {
   cwd?: string;
   envs?: string[];
   catchErr: boolean;
+  withRoot: boolean;
 }
 
 export class Remote {
@@ -22,12 +24,20 @@ export class Remote {
   private password: string;
   private concurrency: number;
   private ssh: NodeSSH | undefined;
+  private showOutput: boolean;
 
-  constructor({ remoteIP, username, password, concurrency }: Param) {
+  constructor({
+    remoteIP,
+    username,
+    password,
+    concurrency,
+    showOutput,
+  }: Param) {
     this.remoteIP = remoteIP;
     this.username = username;
     this.password = password;
     this.concurrency = concurrency;
+    this.showOutput = showOutput;
   }
 
   async connect() {
@@ -39,28 +49,47 @@ export class Remote {
     });
   }
 
-  async runCommand({ command, envs, cwd, catchErr }: Command) {
+  async runCommand({ command, envs, cwd, catchErr, withRoot }: Command) {
     if (this.ssh === undefined) {
       throw new Error('You need to connect to the remote server first');
     }
+
+    const onError = (err: Buffer) => {
+      if (catchErr) {
+        throw new Error(err.toString());
+      } else {
+        Logger.error(err.toString());
+      }
+    };
+
+    const onStdOut = (out: Buffer) => {
+      if (this.showOutput) {
+        console.log(out.toString());
+      }
+    };
 
     if (envs) {
       // set environments
     }
 
-    let result = await this.ssh.execCommand(command, {
-      cwd,
-      onStdout: (out) => {
-        Logger.info(out.toString());
-      },
-      onStderr: (err) => {
-        if (catchErr) {
-          throw new Error(result.stderr);
-        } else {
-          Logger.error(result.stderr);
-        }
-      },
-    });
+    if (withRoot) {
+      let cmds = command.split(' ');
+      await this.ssh.exec('sudo', cmds, {
+        cwd,
+        stdin: this.password + '\n',
+        execOptions: {
+          pty: true,
+        },
+        onStdout: onStdOut,
+        onStderr: onError,
+      });
+    } else {
+      await this.ssh.execCommand(command, {
+        cwd,
+        onStdout: onStdOut,
+        onStderr: onError,
+      });
+    }
   }
 
   async putFiles(files: Directory[]) {

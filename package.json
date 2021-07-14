@@ -21,7 +21,7 @@
     "yaml": "^1.10.2"
   },
   "scripts": {
-    "start": "ts-node lib/index.ts",
+    "start": "ts-node lib/index.ts test.yml",
     "dev": "ts-node-dev --respawn --transpile-only lib/index.ts"
   }
 }

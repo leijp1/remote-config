@@ -12,7 +12,7 @@ export class Logger {
 
   static warning(message: any) {
     console.log(
-      `[${chalk.yellow('INFO')}] ${chalk.gray(
+      `[${chalk.yellow('WARNING')}] ${chalk.gray(
         moment().format('hh:mm:ss')
       )} ${message}`
     );
@@ -20,9 +20,9 @@ export class Logger {
 
   static error(message: any) {
     console.log(
-      `[${chalk.red('INFO')}] ${chalk.gray(
+      `\n[${chalk.red('Error')}] ${chalk.gray(
         moment().format('hh:mm:ss')
-      )} ${message}`
+      )} ${message}\n`
     );
   }
 }

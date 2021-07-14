@@ -5,6 +5,7 @@ import { Config, Logger as ConfigLogger, Login } from './config-interface';
 import cliProgress from 'cli-progress';
 import Logger from '../logger';
 import { Remote } from '../remote/remote';
+import { throws } from 'assert';
 
 interface Param {
   filePath: string;
@@ -47,7 +48,7 @@ export class ConfigParser {
         'You need to set your username and password in loggin section'
       );
     }
-
+    this.config = config;
     return this;
   }
 
@@ -55,22 +56,31 @@ export class ConfigParser {
     if (this.config === undefined) {
       throw new Error('You need to read config file first');
     }
-    Logger.info('Start job' + this.config.name);
+    Logger.info('Start job ' + this.config.name);
     let stepLength = this.config.steps.length;
 
     for (let remoteIp of this.config.remote) {
+      // Setup remote
       let remote = new Remote({
+        showOutput: this.config.output,
         remoteIP: remoteIp,
         password: this.config.login.password,
         username: this.config.login.username,
         concurrency: this.concurrency,
       });
+
+      await remote.connect();
+
+      // run steps
       this.config.steps.forEach(async (step, count) => {
-        const { files, directory, run, cwd, env, catch_err } = step;
+        const { files, directory, run, cwd, env, catch_err, name, with_root } =
+          step;
 
         // Initialize progressbar
         const bar = new cliProgress.SingleBar(
-          { format: 'CLI Progress |' + '{bar}' + '| {percentage}% || {name}' },
+          {
+            format: 'CLI Progress |' + '{bar}' + '| {percentage}%',
+          },
           cliProgress.Presets.shades_classic
         );
         bar.start(stepLength, 0);
@@ -83,6 +93,7 @@ export class ConfigParser {
             cwd,
             envs: env,
             catchErr: catch_err ?? false,
+            withRoot: with_root ?? false,
           });
         } else if (files !== undefined) {
           bar.update(count, { name: 'Put files' });

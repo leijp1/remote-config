@@ -1,10 +1,16 @@
+# Remote Config
+
+Run your ssh command with simple a configuration file
+
+## Avaliable configs
+
+```typescript
 export interface Config {
   name: string;
   remote: string[];
   login: Login;
   logger: Logger;
   steps: Step[];
-  output: boolean;
 }
 
 export interface Logger {
@@ -31,3 +37,4 @@ export interface Directory {
   local: string;
   remote: string;
 }
+```

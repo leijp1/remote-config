@@ -2,7 +2,10 @@
 
 Run your ssh command with simple a configuration file
 
-## Avaliable configs
+## Available variable
+- {index}: Current remote index
+
+## Available configs
 
 ```typescript
 export interface Config {

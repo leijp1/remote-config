@@ -56,7 +56,7 @@ export class ConfigParser {
     if (this.config === undefined) {
       throw new Error('You need to read config file first');
     }
-    Logger.info('Start job ' + this.config.name);
+    Logger.info('Starting job ' + this.config.name);
     let stepLength = this.config.steps.length;
 
     for (let remoteIp of this.config.remote) {
@@ -70,6 +70,7 @@ export class ConfigParser {
       });
 
       await remote.connect();
+      Logger.warning(`${remoteIp} is connected`);
 
       // run steps
       let count = 0;
@@ -77,19 +78,9 @@ export class ConfigParser {
         const { files, directory, run, cwd, env, catch_err, name, with_root } =
           step;
 
-        // Initialize progressbar
-        const bar = new cliProgress.SingleBar(
-          {
-            format: 'CLI Progress |' + '{bar}' + '| {percentage}%',
-          },
-          cliProgress.Presets.shades_classic
-        );
-        bar.start(stepLength, 0);
         // start running command
-
         if (run !== undefined) {
-          bar.update(count, { name: 'Run Command' });
-          await remote.runCommand({
+          await remote.runCommand(count, {
             command: run,
             cwd,
             envs: env,
@@ -97,11 +88,9 @@ export class ConfigParser {
             withRoot: with_root ?? false,
           });
         } else if (files !== undefined) {
-          bar.update(count, { name: 'Put files' });
-          await remote.putFiles(files);
+          await remote.putFiles(count, files);
         } else if (directory !== undefined) {
-          bar.update(count, { name: 'Put directory' });
-          await remote.putDirectory(directory);
+          await remote.putDirectory(count, directory);
         } else {
           throw new Error('Nothing to run');
         }

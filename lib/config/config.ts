@@ -59,6 +59,7 @@ export class ConfigParser {
     Logger.info('Starting job ' + this.config.name);
     let stepLength = this.config.steps.length;
 
+    let count = 0;
     for (let remoteIp of this.config.remote) {
       // Setup remote
       let remote = new Remote({
@@ -72,8 +73,7 @@ export class ConfigParser {
       await remote.connect();
       Logger.warning(`${remoteIp} is connected`);
 
-      // run steps
-      let count = 0;
+      // run step
       for (let step of this.config.steps) {
         const { files, directory, run, cwd, env, catch_err, name, with_root } =
           step;
@@ -94,8 +94,9 @@ export class ConfigParser {
         } else {
           throw new Error('Nothing to run');
         }
-        count++;
+
       }
+      count++;
     }
   }
 

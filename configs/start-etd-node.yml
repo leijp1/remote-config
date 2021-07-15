@@ -1,0 +1,23 @@
+name: ETD Start
+
+output: true
+remote: ["192.168.1.154"]
+
+login:
+  username: root
+
+  password: password
+
+logger:
+  output: "/local/logger.txt"
+
+steps:  
+  - files:
+      - local: C:\Users\Ivan\remote-config\configs\test.env
+        remote: "/root/eth-localnet/.env"
+
+  - run: git pull
+    cwd: /root/eth-localnet
+
+  - run: docker-compose up -d etdstats_node
+    cwd: /root/eth-localnet

@@ -1,7 +1,7 @@
 name: ETD Start
 
 output: true
-remote: ["192.168.1.154"]
+remote: ["192.168.1.157"]
 
 login:
   username: root
@@ -13,7 +13,7 @@ logger:
 
 steps:  
   - files:
-      - local: C:\Users\Ivan\remote-config\configs\test.env
+      - local: .\configs\test.env
         remote: "/root/eth-localnet/.env"
 
   - run: git pull

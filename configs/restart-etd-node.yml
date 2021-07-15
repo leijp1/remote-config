@@ -1,0 +1,22 @@
+name: ETD Restart
+
+output: true
+remote: ["192.168.1.124","192.168.1.125","192.168.1.126","192.168.1.151","192.168.1.152","192.168.1.153","192.168.1.154","192.168.1.155","192.168.1.156","192.168.1.157"]
+
+login:
+  username: root
+
+  password: password
+
+logger:
+  output: "/local/logger.txt"
+
+steps:  
+  - run: git pull
+    cwd: /root/eth-localnet
+
+  - run: docker pull sirily11/etdstats-node
+    cwd: /root/eth-localnet
+
+  - run: docker-compose restart etdstats_node
+    cwd: /root/eth-localnet

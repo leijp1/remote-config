@@ -11,5 +11,5 @@ logger:
   output: "/local/logger.txt"
 
 steps:
-  - run: git clone https://github.com/sirily11/eth-localnet.git
+  - run: ls
     catch_err: true

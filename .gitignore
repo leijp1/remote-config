@@ -3,3 +3,4 @@ test.yml
 *.js
 package-lock.json
 yarn.lock
+*.env

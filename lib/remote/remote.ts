@@ -53,7 +53,7 @@ export class Remote {
     if (this.ssh === undefined) {
       throw new Error('You need to connect to the remote server first');
     }
-
+    console.log();
     const onError = (err: Buffer) => {
       if (catchErr) {
         throw new Error(err.toString());

@@ -4,3 +4,4 @@ test.yml
 package-lock.json
 yarn.lock
 *.env
+!jest.config.js

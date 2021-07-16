@@ -1,6 +1,4 @@
 import ConfigParser, {Config} from "../config";
-import {Remote} from "../remote/remote";
-import Logger from "../logger";
 
 jest.mock("../logger/logger", () => {
     return {

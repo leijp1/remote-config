@@ -1,8 +1,9 @@
 export interface Config {
   name: string;
+  concurrency?: number;
   remote: string[];
   login: Login;
-  logger: Logger;
+  logger?: Logger;
   steps: Step[];
   output: boolean;
 }

@@ -20,9 +20,9 @@ export class Logger {
 
   static error(message: any) {
     console.log(
-      `\n[${chalk.red('Error')}] ${chalk.gray(
+      `[${chalk.red('Error')}] ${chalk.gray(
         moment().format('hh:mm:ss')
-      )} ${message}\n`
+      )} ${message}`
     );
   }
 }

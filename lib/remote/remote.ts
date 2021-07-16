@@ -1,6 +1,7 @@
 import { NodeSSH } from 'node-ssh';
 import { Directory } from '../config/config-interface';
 import Logger from '../logger';
+import {Command, ReplaceParams, Result} from "./remoteInterface";
 
 interface Param {
   remoteIP: string;
@@ -10,25 +11,15 @@ interface Param {
   showOutput: boolean;
 }
 
-interface ReplaceParams {
-  index: number;
-}
 
-interface Command {
-  command: string;
-  cwd?: string;
-  envs?: string[];
-  catchErr: boolean;
-  withRoot: boolean;
-}
 
 export class Remote {
-  private remoteIP: string;
-  private username: string;
-  private password: string;
-  private concurrency: number;
+  private readonly remoteIP: string;
+  private readonly username: string;
+  private readonly password: string;
+  private readonly concurrency: number;
   private ssh: NodeSSH | undefined;
-  private showOutput: boolean;
+  private readonly showOutput: boolean;
 
   constructor({
     remoteIP,
@@ -55,14 +46,16 @@ export class Remote {
 
   async runCommand(
     index: number,
-    { command, envs, cwd, catchErr, withRoot }: Command
-  ) {
+    { command, envs, cwd, catchErr, withRoot, name }: Command
+  ): Promise<Result | undefined> {
     if (this.ssh === undefined) {
       throw new Error('You need to connect to the remote server first');
     }
-
+    // Logging
+    let cmdName = name ?? command
+    Logger.info(`${this.remoteIP}: Running command ${cmdName}`)
+    // Run command
     let newCommand = this.replacePlaceHolder(command, { index });
-    console.log();
     const onError = (err: Buffer) => {
       if (catchErr) {
         throw new Error(err.toString());
@@ -99,9 +92,16 @@ export class Remote {
         onStderr: onError,
       });
     }
+
+    return {
+      name: cmdName,
+      type: "command",
+      success: true,
+      remote: this.remoteIP,
+    }
   }
 
-  async putFiles(index: number, files: Directory[]) {
+  async putFiles(index: number, files: Directory[]): Promise<Result | undefined> {
     if (this.ssh === undefined) {
       throw new Error('You need to connect to the remote server first');
     }
@@ -112,19 +112,33 @@ export class Remote {
       };
     });
 
-    Logger.info('Copy local files ' + newFiles.map((f) => f.local));
-    let result = await this.ssh.putFiles(newFiles, {
+    Logger.info(`${this.remoteIP}: Copy local files ` + newFiles.map((f) => f.local));
+    await this.ssh.putFiles(newFiles, {
       concurrency: this.concurrency,
     });
+
+    return {
+      remote: this.remoteIP,
+      type: "file",
+      success: true,
+      files: newFiles,
+    }
   }
 
-  async putDirectory(index: number, { local, remote }: Directory) {
+  async putDirectory(index: number, { local, remote }: Directory): Promise<Result | undefined> {
     if (this.ssh === undefined) {
       throw new Error('You need to connect to the remote server first');
     }
+    Logger.info(`${this.remoteIP}: Putting directory ${local} to ${remote}`)
     let result = await this.ssh.putDirectory(local, remote, {
       concurrency: this.concurrency,
     });
+
+    return {
+      type: "directory",
+      remote: this.remoteIP,
+      success: result,
+    }
   }
 
   replacePlaceHolder(name: string, { index }: ReplaceParams) {

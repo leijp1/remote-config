@@ -1,5 +1,7 @@
 # Remote Config
 
+[![Node.js CI](https://github.com/crypyto-panel/remote-config/actions/workflows/test-nodejs.yml/badge.svg)](https://github.com/crypyto-panel/remote-config/actions/workflows/test-nodejs.yml)
+
 Run your ssh command with simple a configuration file
 
 ## Available variable
